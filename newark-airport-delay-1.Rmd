@@ -1,0 +1,36 @@
+---
+title: "newark-airport-delay-graph"
+author: "Henry Zhu"
+date: "April 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(leaflet)
+newark1 <- read_excel("airline_data_NJ.xlsx") %>%
+  filter(ORIGIN=="EWR")
+```
+
+#Graph #1
+This graph looks at delayed flights(labeled as departure 15 or more minutes after scheduled departure time) in the month of January 2018, and what times of the day delayed flights are most common. A noticeable pattern is there is a gradual buildup of delayed flights later in the day, and a lull of delayed flights in the middle of the day.
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE}
+newark1$DEP_TIME <- as.numeric(newark1$DEP_TIME)
+delay<- newark1 %>% filter(DEP_DEL15 =="1") %>%
+  arrange(FL_DATE) %>%
+  ggplot(aes(x=DEP_TIME)) + geom_histogram(bins=50,binwidth = 50,fill="#005DAA") +
+  theme_classic() +
+  xlab("Time of Day") +
+  ylab("Number of Delayed Flights")+
+labs(title="Distribution of Delayed Flights Based on Time of Day", subtitle="Newark Airport, January 2018, Bureau of Transportation Statistics", caption= "Delayed Flight: Actual Departure 15 Minutes or More After Scheduled Dep. Time")+
+scale_x_continuous(limits=c(0,2400),
+                     breaks=c(0,400,800,1200,1600,2000,2400),
+                     labels=c("12:00 AM", "4:00 AM", "8:00 AM","12:00 PM","4:00 PM","8:00 PM","12:00 AM")) +
+scale_y_continuous(breaks=c(0,25,50,75,100,125),
+                   labels=c("0","25","50","75","100","125"))
+delay
+```
